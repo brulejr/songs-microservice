@@ -1,8 +1,8 @@
 package io.jrb.labs.songs.rest
 
 import com.github.fge.jsonpatch.JsonPatch
-import io.jrb.labs.songs.resource.Song
-import io.jrb.labs.songs.service.SongService
+import io.jrb.labs.songs.resource.SongGroup
+import io.jrb.labs.songs.service.SongGroupService
 import mu.KotlinLogging
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
@@ -23,47 +23,47 @@ import reactor.core.publisher.Mono
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/v1/songs")
-class SongController(val songService: SongService) {
+@RequestMapping("/api/v1/songGroups")
+class SongGroupController(val songGroupService: SongGroupService) {
 
     private val log = KotlinLogging.logger {}
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createSong(@RequestBody song: Song): Mono<EntityModel<Song>> {
-        return songService.create(song).map {
+    fun createSongGroup(@RequestBody songGroup: SongGroup): Mono<EntityModel<SongGroup>> {
+        return songGroupService.create(songGroup).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())
         }
     }
 
-    @DeleteMapping("/{songGuid}")
+    @DeleteMapping("/{songGroupGuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteSong(@PathVariable songGuid: UUID): Mono<Void> {
-        return songService.delete(songGuid)
+    fun deleteSongGroup(@PathVariable songGroupGuid: UUID): Mono<Void> {
+        return songGroupService.delete(songGroupGuid)
     }
 
-    @GetMapping("/{songGuid}")
-    fun getSongById(@PathVariable songGuid: UUID): Mono<EntityModel<Song>> {
-        return songService.findByGuid(songGuid).map {
+    @GetMapping("/{songGroupGuid}")
+    fun getSongGroupById(@PathVariable songGroupGuid: UUID): Mono<EntityModel<SongGroup>> {
+        return songGroupService.findByGuid(songGroupGuid).map {
             EntityModel.of(it)
-                    .add(selfLink(songGuid))
+                    .add(selfLink(songGroupGuid))
                     .add(collectionLink())
         }
     }
 
     @GetMapping
-    fun listSongs(): Flux<EntityModel<Song>> {
-        return songService.listAll().map {
+    fun listSongGroups(): Flux<EntityModel<SongGroup>> {
+        return songGroupService.listAll().map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
         }
     }
 
-    @PatchMapping(path = ["/{songGuid}"], consumes = ["application/json-patch+json"])
-    fun patchSong(@PathVariable songGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<Song>> {
-        return songService.update(songGuid, taskPatch).map {
+    @PatchMapping(path = ["/{songGroupGuid}"], consumes = ["application/json-patch+json"])
+    fun patchSongGroup(@PathVariable songGroupGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<SongGroup>> {
+        return songGroupService.update(songGroupGuid, taskPatch).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())
@@ -71,11 +71,11 @@ class SongController(val songService: SongService) {
     }
 
     private fun collectionLink(): Link {
-        return linkTo(methodOn(javaClass).listSongs()).withRel("collection")
+        return linkTo(methodOn(javaClass).listSongGroups()).withRel("collection")
     }
 
-    private fun selfLink(songGuid: UUID): Link {
-        return linkTo(methodOn(javaClass).getSongById(songGuid)).withSelfRel()
+    private fun selfLink(songGroupGuid: UUID): Link {
+        return linkTo(methodOn(javaClass).getSongGroupById(songGroupGuid)).withSelfRel()
     }
 
 }
