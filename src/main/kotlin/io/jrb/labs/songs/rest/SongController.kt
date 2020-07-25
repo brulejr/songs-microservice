@@ -31,7 +31,7 @@ class SongController(val songService: SongService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createSong(@RequestBody song: Song): Mono<EntityModel<Song>> {
-        return songService.create(song).map {
+        return songService.createSong(song).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())
@@ -41,12 +41,12 @@ class SongController(val songService: SongService) {
     @DeleteMapping("/{songGuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteSong(@PathVariable songGuid: UUID): Mono<Void> {
-        return songService.delete(songGuid)
+        return songService.deleteSong(songGuid)
     }
 
     @GetMapping("/{songGuid}")
     fun getSongById(@PathVariable songGuid: UUID): Mono<EntityModel<Song>> {
-        return songService.findByGuid(songGuid).map {
+        return songService.findSongByGuid(songGuid).map {
             EntityModel.of(it)
                     .add(selfLink(songGuid))
                     .add(collectionLink())
@@ -55,15 +55,15 @@ class SongController(val songService: SongService) {
 
     @GetMapping
     fun listSongs(): Flux<EntityModel<Song>> {
-        return songService.listAll().map {
+        return songService.listAllSongs().map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
         }
     }
 
     @PatchMapping(path = ["/{songGuid}"], consumes = ["application/json-patch+json"])
-    fun patchSong(@PathVariable songGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<Song>> {
-        return songService.update(songGuid, taskPatch).map {
+    fun updateSong(@PathVariable songGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<Song>> {
+        return songService.updateSong(songGuid, taskPatch).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())

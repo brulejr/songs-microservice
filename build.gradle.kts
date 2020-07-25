@@ -23,6 +23,7 @@ dependencies {
 	implementation("com.github.java-json-tools:json-patch:1.12")
 	implementation("io.github.microutils:kotlin-logging:1.7.9")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.apache.commons:commons-lang3:3.11")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -31,7 +32,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-hateoas")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-	implementation("io.jrb:kotlin-microservice-lib:0.3.0")
+	implementation("io.jrb:kotlin-microservice-lib:0.3.7")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

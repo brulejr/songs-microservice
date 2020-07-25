@@ -31,7 +31,7 @@ class SongGroupController(val songGroupService: SongGroupService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createSongGroup(@RequestBody songGroup: SongGroup): Mono<EntityModel<SongGroup>> {
-        return songGroupService.create(songGroup).map {
+        return songGroupService.createSongGroup(songGroup).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())
@@ -41,12 +41,12 @@ class SongGroupController(val songGroupService: SongGroupService) {
     @DeleteMapping("/{songGroupGuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteSongGroup(@PathVariable songGroupGuid: UUID): Mono<Void> {
-        return songGroupService.delete(songGroupGuid)
+        return songGroupService.deleteSongGroup(songGroupGuid)
     }
 
     @GetMapping("/{songGroupGuid}")
     fun getSongGroupById(@PathVariable songGroupGuid: UUID): Mono<EntityModel<SongGroup>> {
-        return songGroupService.findByGuid(songGroupGuid).map {
+        return songGroupService.findSongGroupByGuid(songGroupGuid).map {
             EntityModel.of(it)
                     .add(selfLink(songGroupGuid))
                     .add(collectionLink())
@@ -55,15 +55,15 @@ class SongGroupController(val songGroupService: SongGroupService) {
 
     @GetMapping
     fun listSongGroups(): Flux<EntityModel<SongGroup>> {
-        return songGroupService.listAll().map {
+        return songGroupService.listAllSongGroups().map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
         }
     }
 
     @PatchMapping(path = ["/{songGroupGuid}"], consumes = ["application/json-patch+json"])
-    fun patchSongGroup(@PathVariable songGroupGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<SongGroup>> {
-        return songGroupService.update(songGroupGuid, taskPatch).map {
+    fun updateSongGroup(@PathVariable songGroupGuid: UUID, @RequestBody taskPatch: JsonPatch): Mono<EntityModel<SongGroup>> {
+        return songGroupService.updateSongGroup(songGroupGuid, taskPatch).map {
             EntityModel.of(it)
                     .add(selfLink(it.guid!!))
                     .add(collectionLink())
