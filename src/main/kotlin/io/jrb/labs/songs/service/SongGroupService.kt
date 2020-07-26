@@ -5,11 +5,12 @@ import com.github.fge.jsonpatch.JsonPatch
 import com.google.common.base.Verify.verify
 import io.jrb.common.service.CrudService
 import io.jrb.labs.songs.model.SongGroupEntity
-import io.jrb.labs.songs.repository.SongEntityRepository
 import io.jrb.labs.songs.repository.SongGroupEntityRepository
 import io.jrb.labs.songs.resource.SongGroup
+import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils.isNotBlank
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.UUID
@@ -17,7 +18,6 @@ import java.util.UUID
 @Service
 class SongGroupService(
         val songGroupEntityRepository: SongGroupEntityRepository,
-        val songEntityRepository: SongEntityRepository,
         val objectMapper: ObjectMapper
 ) : CrudService<SongGroupEntity, SongGroup>(
         songGroupEntityRepository,
@@ -29,9 +29,14 @@ class SongGroupService(
         objectMapper
 ) {
 
+    private val log = KotlinLogging.logger {}
+
+    @Transactional
     fun createSongGroup(songGroup: SongGroup): Mono<SongGroup> {
-        return Mono.just(validateForCreate(songGroup))
+        return Mono.just(songGroup)
+                .flatMap(this::validateForCreate)
                 .flatMap(this::create)
+                .onErrorContinue { t, u -> log.info(t.message) }
     }
 
     fun deleteSongGroup(guid: UUID): Mono<Void> {
@@ -50,11 +55,13 @@ class SongGroupService(
         return super.update(guid, patch)
     }
 
-    private fun validateForCreate(songGroup: SongGroup): SongGroup {
-        verify(songGroup.guid == null, "SongGroup.guid must be null")
-        verify(isNotBlank(songGroup.title), "SongGroup.title must be non-blank")
-        verify(!songGroup.songs.isNullOrEmpty(), "SongGroup.songs must be non-empty")
-        return songGroup
+    private fun validateForCreate(songGroup: SongGroup): Mono<SongGroup> {
+        return Mono.just(songGroup)
+                .doOnNext {
+                    verify(it.guid == null, "guid must be null")
+                    verify(isNotBlank(it.title), "title must be non-blank")
+                    verify(!it.songs.isNullOrEmpty(), "songs must be non-empty")
+                }
     }
 
 }
